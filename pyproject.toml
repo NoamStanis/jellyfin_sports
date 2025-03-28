@@ -33,12 +33,12 @@ requires = ["setuptools>=61.0",
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "jellyfin-sports_noamst"
+name = "jellyfin_sports_noamst"
 version = "0.0.1"
 authors = [
   { name="Noam", email="noamstanislawski@gmail.com" },
 ]
-description = "Scrapes popular streaming sites and compiles m3u/xml files for viewing, based on Sportyfin"
+description = "Scrapes popular streaming sites and compiles m3u/xml files for viewing, based on jellyfin_sports"
 readme = "README.md"
 requires-python = ">=3.11"
 classifiers = [
@@ -47,5 +47,5 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/NoamStanis/sportyfin"
-Issues = "https://github.com/NoamStanis/sportyfin/issues"
+Homepage = "https://github.com/NoamStanis/jellyfin_sports"
+Issues = "https://github.com/NoamStanis/jellyfin_sports/issues"

@@ -1,7 +1,8 @@
 import sys
+import os
 import time
 import xml.etree.cElementTree as ET
-from .util.pretty_print import *
+from .util.pretty_print import colours, otype, p
 from .util import scraping
 from dotenv import load_dotenv
 
@@ -10,7 +11,7 @@ load_dotenv()
 NBA = "nba"
 NHL = "nhl"
 NFL = "nfl"
-EF = "English Football"
+
 leagues = []
 OUTPUT = os.path.join(os.getcwd(), "output")
 os.environ['output'] = OUTPUT
@@ -28,13 +29,12 @@ def header():
     print(f"{colours.OKCYAN + colours.BOLD}   |\_________\|__|     \|_______|\|__|\|__|    \|__|\___/ /        \|__|    \|__|\|__| \|__|")
     print(f"{colours.OKCYAN + colours.BOLD}   \|_________|                                     \|___|/                                  ")
     print()
-    print(f"{colours.OKGREEN}    Summary: Stream sports events straight from your Jellyfin server. Sportyfin allows users to scrape for ")
-    print(f"{colours.OKGREEN}             live streamed events and watch straight from Jellyfin. Sportyfin also generates meta-data that ")
+    print(f"{colours.OKGREEN}    Summary: Stream sports events straight from your Jellyfin server. jellyfin_sports allows users to scrape for ")
+    print(f"{colours.OKGREEN}             live streamed events and watch straight from Jellyfin. jellyfin_sports also generates meta-data that ")
     print(f"{colours.OKGREEN}             is used in Jellyfin to provide a great viewing experience.")
     print()
-    print(f"{colours.OKGREEN}    Author: Axel Mierczuk")
-    print(f"{colours.OKGREEN}    Version: 1.0.7")
-    print(f"{colours.OKGREEN}    Github: https://github.com/axelmierczuk/sportyfin")
+    print(f"{colours.OKGREEN}    Version: 1.1")
+    print(f"{colours.OKGREEN}    Github: https://github.com/noamstanis/jellyfin_sports")
     print()
     print()
 
@@ -46,7 +46,6 @@ class StreamCollector:
             NBA: scraping.find_streams(NBA) if NBA in leagues else [],
             NHL: scraping.find_streams(NHL) if NHL in leagues else [],
             NFL: scraping.find_streams(NFL) if NFL in leagues else [],
-            EF: scraping.find_streams(EF) if EF in leagues else [],
         }
         self.leagues: list = leagues
 
@@ -107,7 +106,7 @@ def run(argv: list):
     global OUTPUT
     minutes = 30
     try:
-        os.environ['stream_link'] = "https://sportscentral.io"
+        os.environ['stream_link'] = "https://olympicstreams.co/"
         if "-v" in argv:
             os.environ["verbosity"] = "0"
         else:
@@ -126,15 +125,12 @@ def run(argv: list):
             leagues.append(NHL)
         if "-nfl" in argv:
             leagues.append(NFL)
-        if "-ef" in argv:
-            leagues.append(EF)
         if "-a" in argv and len(leagues) == 0:
             leagues.append(NBA)
             leagues.append(NHL)
             leagues.append(NFL)
-            leagues.append(EF)
         elif "-a" in argv and len(leagues) != 0:
-            p("Cannot pass -a with -nba/-nfl/-nhl/-ef", colours.FAIL, otype.ERROR)
+            p("Cannot pass -a with -nba/-nfl/-nhl", colours.FAIL, otype.ERROR)
             sys.exit()
         if "-t" in argv:
             try:

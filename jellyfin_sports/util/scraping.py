@@ -5,7 +5,7 @@ import datetime
 import json
 import sys
 from . import game_info
-from .pretty_print import *
+from pretty_print import *
 import chromedriver_binary
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities

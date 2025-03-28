@@ -1,81 +1,81 @@
 # *`NO LONGER MAINTAINED`*
 
-# Sportyfin
+# jellyfin_sports
 
 ### **For Educational Purposes Only**
 
 ## Description
 
-Stream sports events straight from your Jellyfin server. Sportyfin allows users to scrape for live
-streamed events and watch straight from Jellyfin. Sportyfin also generates meta-data that is used
+Stream sports events straight from your Jellyfin server. jellyfin_sports allows users to scrape for live
+streamed events and watch straight from Jellyfin. jellyfin_sports also generates meta-data that is used
 in Jellyfin to provide a great viewing experience.
 
-Currently, Sportyfin supports NBA, NHL, NFL and Premier League livestreams, but we plan to support other leagues in the future.
+Currently, jellyfin_sports supports NBA, NHL, NFL and Premier League livestreams, but we plan to support other leagues in the future.
 
 
 ## Installation
 
 ### Pip
 
-To install Sportyfin with pip, follow the steps bellow:
+To install jellyfin_sports with pip, follow the steps bellow:
 
 
 ```bash
-pip install sportyfin --no-binary=sportyfin
+pip install jellyfin_sports --no-binary=jellyfin_sports
 ```
 
 
 ### Docker
 
-To install Sportyfin with Docker, follow the steps bellow:
+To install jellyfin_sports with Docker, follow the steps bellow:
 
 ```bash
-git clone https://github.com/axelmierczuk/sportyfin.git
-cd sportyfin
-docker build --tag sportyfin .
-docker run -v <Path Where You Want Output>:/sportyfin/output sportyfin 
+git clone https://github.com/axelmierczuk/jellyfin_sports.git
+cd jellyfin_sports
+docker build --tag jellyfin_sports .
+docker run -v <Path Where You Want Output>:/jellyfin_sports/output jellyfin_sports 
 
-# For example: docker run -v ~/Desktop:/sportyfin/output sportyfin 
-# You can edit the paramaters that sportyfin runs with from the Dockerfile
+# For example: docker run -v ~/Desktop:/jellyfin_sports/output jellyfin_sports 
+# You can edit the paramaters that jellyfin_sports runs with from the Dockerfile
 ```
 
 _OR_ you may pull the container with the following:
 
 ```bash
-docker pull sportyfin/sportyfin:latest 
-docker run -v <Path Where You Want Output>:/sportyfin/output sportyfin/sportyfin:latest
+docker pull jellyfin_sports/jellyfin_sports:latest 
+docker run -v <Path Where You Want Output>:/jellyfin_sports/output jellyfin_sports/jellyfin_sports:latest
 
-# You CANNOT edit the paramaters that sportyfin runs with when pulling the image
+# You CANNOT edit the paramaters that jellyfin_sports runs with when pulling the image
 ```
 
 ## Usage
 
-We highly recommend running Sportyfin in combination with [tmux](https://man7.org/linux/man-pages/man1/tmux.1.html), or something similar.
+We highly recommend running jellyfin_sports in combination with [tmux](https://man7.org/linux/man-pages/man1/tmux.1.html), or something similar.
 
 Example usage:
 
 ```bash
-python3 -m sportyfin <arguments>
+python3 -m jellyfin_sports <arguments>
 ```
 
-Start the sportyfin server as follows:
+Start the jellyfin_sports server as follows:
 ```bash
 # -nba specifies finding streams for the NBA
-# -s allows sportyfin to use Selenium to scrape
+# -s allows jellyfin_sports to use Selenium to scrape
 # -v enables verbose mode
 # -o enables selecting output location
 
-python3 -m sportyfin -nba -s -v -o ~/Desktop
+python3 -m jellyfin_sports -nba -s -v -o ~/Desktop
 ```
 
 ```bash
 # -vv specifies silent mode (no output will be produced)
-# -a specifies all leagues supported by sportyfin
+# -a specifies all leagues supported by jellyfin_sports
 
-python3 -m sportyfin -a -vv
+python3 -m jellyfin_sports -a -vv
 ```
 
-**See the full list of arguments [here](https://sportyfin-doc.readthedocs.io/en/latest/usage.html#installation).**
+**See the full list of arguments [here](https://jellyfin_sports-doc.readthedocs.io/en/latest/usage.html#installation).**
 
 Once you have run the program, make sure to link to the .m3u's in the Jellyfin dashboard:
 
@@ -102,7 +102,7 @@ Once the path has been defined and the settings have been updated, you can check
 
 ## Documentation
 
-Find all the documentation [here](https://sportyfin-doc.readthedocs.io/en/latest/index.html).
+Find all the documentation [here](https://jellyfin_sports-doc.readthedocs.io/en/latest/index.html).
 
 ## Future Improvement
 
