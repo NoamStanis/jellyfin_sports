@@ -6,7 +6,6 @@ import json
 import sys
 from . import game_info
 from .pretty_print import otype, colours, p, pind, pind2
-#import chromedriver_binary
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from dotenv import load_dotenv
