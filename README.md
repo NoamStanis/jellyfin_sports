@@ -1,51 +1,25 @@
-# *`NO LONGER MAINTAINED`*
-
-# jellyfin_sports
+# Jellyfin Sports
 
 ### **For Educational Purposes Only**
 
 ## Description
 
-Stream sports events straight from your Jellyfin server. jellyfin_sports allows users to scrape for live
-streamed events and watch straight from Jellyfin. jellyfin_sports also generates meta-data that is used
+Stream sports events straight from your Jellyfin server. Jellyfin Sports allows users to scrape for live
+streamed events and watch straight from Jellyfin. Jellyfin Sports also generates meta-data that is used
 in Jellyfin to provide a great viewing experience.
 
-Currently, jellyfin_sports supports NBA, NHL, NFL and Premier League livestreams, but we plan to support other leagues in the future.
+Currently, Jellyfin Sports supports NBA, NHL, NFL and Premier League livestreams, but we plan to support other leagues in the future.
 
 
 ## Installation
 
 ### Pip
 
-To install jellyfin_sports with pip, follow the steps bellow:
+To install Jellyfin Sports with pip, follow the steps bellow:
 
 
 ```bash
 pip install jellyfin_sports --no-binary=jellyfin_sports
-```
-
-
-### Docker
-
-To install jellyfin_sports with Docker, follow the steps bellow:
-
-```bash
-git clone https://github.com/axelmierczuk/jellyfin_sports.git
-cd jellyfin_sports
-docker build --tag jellyfin_sports .
-docker run -v <Path Where You Want Output>:/jellyfin_sports/output jellyfin_sports 
-
-# For example: docker run -v ~/Desktop:/jellyfin_sports/output jellyfin_sports 
-# You can edit the paramaters that jellyfin_sports runs with from the Dockerfile
-```
-
-_OR_ you may pull the container with the following:
-
-```bash
-docker pull jellyfin_sports/jellyfin_sports:latest 
-docker run -v <Path Where You Want Output>:/jellyfin_sports/output jellyfin_sports/jellyfin_sports:latest
-
-# You CANNOT edit the paramaters that jellyfin_sports runs with when pulling the image
 ```
 
 ## Usage
@@ -99,10 +73,6 @@ Once the path has been defined and the settings have been updated, you can check
 `Home > Live TV > Channels (at the top)`
 
 !['Dashboard'](https://i.ibb.co/yS5ycS6/Screen-Shot-2022-01-11-at-11-08-08-AM.png)
-
-## Documentation
-
-Find all the documentation [here](https://jellyfin_sports-doc.readthedocs.io/en/latest/index.html).
 
 ## Future Improvement
 
