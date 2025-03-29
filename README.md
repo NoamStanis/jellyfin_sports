@@ -8,7 +8,7 @@ Stream sports events straight from your Jellyfin server. Jellyfin Sports allows 
 streamed events and watch straight from Jellyfin. Jellyfin Sports also generates meta-data that is used
 in Jellyfin to provide a great viewing experience.
 
-Currently, Jellyfin Sports supports NBA, NHL, NFL and Premier League livestreams, but we plan to support other leagues in the future.
+Currently, Jellyfin Sports supports NBA, NHL, and NFL livestreams, but we plan to support other leagues in the future.
 
 
 ## Installation

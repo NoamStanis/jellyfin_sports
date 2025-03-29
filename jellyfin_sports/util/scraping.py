@@ -204,134 +204,28 @@ def pull_bitly_link(link) -> list:
         return res
     return res
 
-
-def make_match(api_res, hosts, lg) -> list:
-    games = []
-    for g in api_res:
-        ht = g['homeTeam']
-        at = g['awayTeam']
-        host_id = str(g['eventLink']).split('/')[-1]
-        match = {
-            "home_team": {
-                "name": ht['name'],
-                "icon_url": ht['logo']
-            },
-            "away_team": {
-                "name": at['name'],
-                "icon_url": at['logo']
-            },
-            "match": {
-                "name": g.get('name', ''),
-                "img_location": "",
-                "url": f"{hosts[0]}{host_id}{hosts[1]}",
-                "start": "",
-                "stop": ""
-            }
-        }
-        try:
-            t = ''.join(g['startTime'].split(':'))
-            if len(t) > 4:
-                t = t[:(4-len(t))]
-            t_end = str(int(t) + 300)
-            if len(t_end) < 4:
-                t_end = "0" + t_end
-            try:
-                match['match']['start'] = ''.join(g['formatedStartDate'].split('-')) + t + " GMT"
-                match['match']['stop'] = ''.join(g['formatedStartDate'].split('-')) + t_end + " GMT"
-            except:
-                match['match']['start'] = ''.join(g['startDate'].split('-')) + t + " GMT"
-                match['match']['stop'] = ''.join(g['startDate'].split('-')) + t_end + " GMT"
-        except:
-            pass
-        if match['match']['name'] == '':
-            match['match']['name'] = f"{match['away_team']['name']} vs {match['home_team']['name']}"
-        match['match']['img_location'] = game_info.generate_img(match, lg)
-        p(f"Found - {match['match']['name']}", colours.OKGREEN, otype.REGULAR)
-        pind2(f"URL - {match['match']['url']}", colours.OKCYAN, otype.DEBUG)
-        pind2(f"ICON - {match['match']['img_location']}", colours.OKCYAN, otype.DEBUG)
-        games.append(match)
-    return games
-
 def make_match(game_links, lg) -> list:
-    games = []
-    for g in game_links:
-        ht = g['homeTeam']
-        at = g['awayTeam']
-        host_id = str(g['eventLink']).split('/')[-1]
-        match = {
-            "home_team": {
-                "name": ht['name'],
-                "icon_url": ht['logo']
-            },
-            "away_team": {
-                "name": at['name'],
-                "icon_url": at['logo']
-            },
-            "match": {
-                "name": g.get('name', ''),
-                "img_location": "",
-                "url": f"{hosts[0]}{host_id}{hosts[1]}",
-                "start": "",
-                "stop": ""
-            }
+    games = {}
+    for i, url in enumerate(game_links):
+        response = reqs.get(url)
+        soup = BeautifulSoup(response.text, "html.parser")
+
+        # Extract team names from the URL
+        match = re.search(r'live-([\w-]+)-vs-([\w-]+)-stream', url)
+        if match:
+            home_team = match.group(1).replace("-", " ").title()
+            away_team = match.group(2).replace("-", " ").title()
+        else:
+            away_team, home_team = "Unknown", "Unknown"
+        
+        games["game_" + str(i+1)] = {
+        "url" : url,
+        "Home Team": home_team,
+        "Away Team": away_team,
+        "Name": home_team + " vs. " + away_team
         }
-        try:
-            t = ''.join(g['startTime'].split(':'))
-            if len(t) > 4:
-                t = t[:(4-len(t))]
-            t_end = str(int(t) + 300)
-            if len(t_end) < 4:
-                t_end = "0" + t_end
-            try:
-                match['match']['start'] = ''.join(g['formatedStartDate'].split('-')) + t + " GMT"
-                match['match']['stop'] = ''.join(g['formatedStartDate'].split('-')) + t_end + " GMT"
-            except:
-                match['match']['start'] = ''.join(g['startDate'].split('-')) + t + " GMT"
-                match['match']['stop'] = ''.join(g['startDate'].split('-')) + t_end + " GMT"
-        except:
-            pass
-        if match['match']['name'] == '':
-            match['match']['name'] = f"{match['away_team']['name']} vs {match['home_team']['name']}"
-        match['match']['img_location'] = game_info.generate_img(match, lg)
-        p(f"Found - {match['match']['name']}", colours.OKGREEN, otype.REGULAR)
-        pind2(f"URL - {match['match']['url']}", colours.OKCYAN, otype.DEBUG)
-        pind2(f"ICON - {match['match']['img_location']}", colours.OKCYAN, otype.DEBUG)
-        games.append(match)
+
     return games
-
-def find_streams(lg: str) -> list:
-    """
-    Finds current games that are active for a given league.
-    """
-    STREAM_LINK = os.environ.get('stream_link')
-    p(f"COLLECTING {lg.upper()} STREAMING LINKS", colours.HEADER, otype.REGULAR)
-    res = []
-    games = []
-    date = datetime.datetime.today().strftime('%Y-%m-%d')
-    hosts = [f"{STREAM_LINK}"]
-    path = None
-    if lg == NHL:
-        path = "nhl-tournaments"
-        hosts.append("/live/hockey-stream")
-    elif lg == NFL:
-        path = "nfl-tournaments-week"
-        hosts.append("/live/football-stream")
-    elif lg == NBA:
-        path = "nba-tournaments"
-        hosts.append("/live/basketball-stream")
-
-    if path:
-        main_link = f"{STREAM_LINK}/api/{path}?date={date}"
-        api_res = json.loads(reqs.request("GET", main_link).content)[0]['events']
-        games = make_match(api_res, hosts, lg)
-
-    for match in games:
-        match['match']['url'] = pull_bitly_link(match['match']['url'])
-        if not (len(match['match']['url']) == 0 or match in res) :
-            res.append(match)
-    if len(res) == 0:
-        p(f"COULD NOT FIND {lg.upper()} GAMES", colours.FAIL, otype.ERROR)
-    return res
 
 def find_streams(lg: str) -> list:
     """
@@ -367,10 +261,11 @@ def find_streams(lg: str) -> list:
         sports_links = [link for link in extracted_links if any(team in link for team in nba_teams)]
 
     # Print the filtered links
-    for link in sports_links:
-        link = STREAM_LINK + link
+    for i, link in enumerate(sports_links):
+        sports_links[i] = STREAM_LINK + link
     
-    return sports_links
+    
+    return make_match(sports_links, lg)
 
 def get_streams(s: list) -> list:
     return find_urls(bypass_bitly(s))

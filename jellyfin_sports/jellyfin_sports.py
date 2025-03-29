@@ -43,14 +43,15 @@ class StreamCollector:
         self.leagues: list = leagues
 
     def collect(self) -> None:
-
+        match_counter = 1
         for lg in self.leagues:
             p(f"COLLECTING {lg.upper()} .M3U8 LINKS", colours.HEADER, otype.REGULAR)
             res = 0
-            for match in self.streaming_sites[lg]:
-                p(f"Looking for {match['match']['name']} streams:", colours.WARNING, otype.REGULAR)
-                match['match']['m3u8_urls'] = scraping.get_streams(match['match']['url'])
-                res += len(match['match']['m3u8_urls'])
+            for match_id, game_values in self.streaming_sites[lg].items():
+                p(f"Looking for {game_values['Name']} streams:", colours.WARNING, otype.REGULAR)
+                self.streaming_sites[lg][match_id]['m3u8_urls'] = scraping.get_streams(game_values['url'])
+                res += len(self.streaming_sites[lg][match_id]['m3u8_urls'])
+                match_counter += 1
             if res == 0:
                 p(f"COULD NOT FIND {lg.upper()} M3U8 LINKS", colours.FAIL, otype.REGULAR)
 
