@@ -1,28 +1,60 @@
 import time
-import requests as r
+import requests as reqs
 import regex as re
 import datetime
 import json
 import sys
 from . import game_info
-from pretty_print import *
-import chromedriver_binary
+from .pretty_print import otype, colours, p, pind, pind2
+#import chromedriver_binary
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from dotenv import load_dotenv
 import os
+from bs4 import BeautifulSoup
 
 load_dotenv()
 
-try:
-    from BeautifulSoup import BeautifulSoup
-except ImportError:
-    from bs4 import BeautifulSoup
 
 NBA = "nba"
 NHL = "nhl"
 NFL = "nfl"
-EF = "English Football"
+
+# NHL Teams
+nhl_teams = [
+    "anaheim-ducks", "arizona-coyotes", "boston-bruins", "buffalo-sabres", "calgary-flames", 
+    "carolina-hurricanes", "chicago-blackhawks", "colorado-avalanche", "columbus-blue-jackets", 
+    "dallas-stars", "detroit-red-wings", "edmonton-oilers", "florida-panthers", "los-angeles-kings", 
+    "minnesota-wild", "montreal-canadiens", "nashville-predators", "new-jersey-devils", 
+    "new-york-islanders", "new-york-rangers", "ottawa-senators", "philadelphia-flyers", 
+    "pittsburgh-penguins", "san-jose-sharks", "seattle-kraken", "st-louis-blues", "tampa-bay-lightning", 
+    "toronto-maple-leafs", "vancouver-canucks", "vegas-golden-knights", "washington-capitals", 
+    "winnipeg-jets"
+]
+
+# NFL Teams
+nfl_teams = [
+    "arizona-cardinals", "atlanta-falcons", "baltimore-ravens", "buffalo-bills", "carolina-panthers", 
+    "chicago-bears", "cincinnati-bengals", "cleveland-browns", "dallas-cowboys", "denver-broncos", 
+    "detroit-lions", "green-bay-packers", "houston-texans", "indianapolis-colts", "jacksonville-jaguars", 
+    "kansas-city-chiefs", "las-vegas-raiders", "los-angeles-chargers", "los-angeles-rams", 
+    "miami-dolphins", "minnesota-vikings", "new-england-patriots", "new-orleans-saints", 
+    "new-york-giants", "new-york-jets", "philadelphia-eagles", "pittsburgh-steelers", 
+    "san-francisco-49ers", "seattle-seahawks", "tampa-bay-buccaneers", "tennessee-titans", 
+    "washington-commanders"
+]
+
+# NBA Teams
+nba_teams = [
+    "atlanta-hawks", "boston-celtics", "brooklyn-nets", "charlotte-hornets", "chicago-bulls", 
+    "cleveland-cavaliers", "dallas-mavericks", "denver-nuggets", "detroit-pistons", 
+    "golden-state-warriors", "houston-rockets", "indiana-pacers", "los-angeles-clippers", 
+    "los-angeles-lakers", "memphis-grizzlies", "miami-heat", "milwaukee-bucks", "minnesota-timberwolves", 
+    "new-orleans-pelicans", "new-york-knicks", "oklahoma-city-thunder", "orlando-magic", 
+    "philadelphia-76ers", "phoenix-suns", "portland-trail-blazers", "sacramento-kings", 
+    "san-antonio-spurs", "toronto-raptors", "utah-jazz", "washington-wizards"
+]
+
 
 
 def flatten_json(y: dict) -> dict:
@@ -75,7 +107,7 @@ def selenium_find(link: str) -> list:
                     list_of_dict_values = list(obj.values())
                     for value in list_of_dict_values:
                         if str(value).find("m3u8") > -1 and str(value) not in res:
-                            if int(r.get(value, allow_redirects=True).status_code) == 200:
+                            if int(reqs.get(value, allow_redirects=True).status_code) == 200:
                                 pind2(f"Found a stream - {str(value)}", colours.OKGREEN, otype.REGULAR)
                             res.append(value)
             except KeyboardInterrupt:
@@ -100,11 +132,11 @@ def html_find(link: str) -> list:
     pind(f"Trying to find m3u8 in page content - {link}", colours.OKCYAN, otype.DEBUG)
     res = []
     try:
-        content = r.get(link).text
+        content = reqs.get(link).text
         for match in re.findall(r"([\'][^\'\"]+(\.m3u8)[^\'\"]*[\'])|([\"][^\'\"]+(\.m3u8)[^\'\"]*[\"])", content):
             for i in match:
                 if (i.count("\'") == 2 and i.count("\"") == 0) or (i.count("\"") == 2 and i.count("\'") == 0) and ".m3u8" in i and i[1:-1] not in res:
-                    if int(r.get(i[1:-1], allow_redirects=True).status_code) == 200:
+                    if int(reqs.get(i[1:-1], allow_redirects=True).status_code) == 200:
                         res.append(i[1:-1])
                         pind2(f"Found a stream - {str(i[1:-1])}", colours.OKGREEN, otype.REGULAR)
     except Exception as e:
@@ -130,7 +162,7 @@ def find_urls(ll: list) -> list:
     except Exception as e:
         return list(dict.fromkeys(res))
     if len(res) == 0:
-        p(f"Did not find streams", colours.FAIL, otype.DEBUG)
+        p("Did not find streams", colours.FAIL, otype.DEBUG)
     return list(dict.fromkeys(res))
 
 
@@ -140,7 +172,7 @@ def bypass_bitly(ll: list) -> list:
     """
     res = []
     for link in ll:
-        parsed_html = BeautifulSoup(r.request("GET", link).text, features="lxml")
+        parsed_html = BeautifulSoup(reqs.request("GET", link).text, features="lxml")
         try:
             url = parsed_html.body.find('a', attrs={'id': 'skip-btn'}).get('href')
             if url:
@@ -158,7 +190,7 @@ def pull_bitly_link(link) -> list:
     """
     Pull bitly link from main streaming site.
     """
-    parsed_html_next = BeautifulSoup(r.request("GET", link).text, features="lxml")
+    parsed_html_next = BeautifulSoup(reqs.request("GET", link).text, features="lxml")
     res = []
     try:
         for tag in parsed_html_next.body.find_all('tr'):
@@ -178,10 +210,7 @@ def make_match(api_res, hosts, lg) -> list:
     for g in api_res:
         ht = g['homeTeam']
         at = g['awayTeam']
-        if lg == EF:
-            host_id = str(g['eventLink'].split('/')[-1]).split("?")[0]
-        else:
-            host_id = str(g['eventLink']).split('/')[-1]
+        host_id = str(g['eventLink']).split('/')[-1]
         match = {
             "home_team": {
                 "name": ht['name'],
@@ -223,6 +252,52 @@ def make_match(api_res, hosts, lg) -> list:
         games.append(match)
     return games
 
+def make_match(game_links, lg) -> list:
+    games = []
+    for g in game_links:
+        ht = g['homeTeam']
+        at = g['awayTeam']
+        host_id = str(g['eventLink']).split('/')[-1]
+        match = {
+            "home_team": {
+                "name": ht['name'],
+                "icon_url": ht['logo']
+            },
+            "away_team": {
+                "name": at['name'],
+                "icon_url": at['logo']
+            },
+            "match": {
+                "name": g.get('name', ''),
+                "img_location": "",
+                "url": f"{hosts[0]}{host_id}{hosts[1]}",
+                "start": "",
+                "stop": ""
+            }
+        }
+        try:
+            t = ''.join(g['startTime'].split(':'))
+            if len(t) > 4:
+                t = t[:(4-len(t))]
+            t_end = str(int(t) + 300)
+            if len(t_end) < 4:
+                t_end = "0" + t_end
+            try:
+                match['match']['start'] = ''.join(g['formatedStartDate'].split('-')) + t + " GMT"
+                match['match']['stop'] = ''.join(g['formatedStartDate'].split('-')) + t_end + " GMT"
+            except:
+                match['match']['start'] = ''.join(g['startDate'].split('-')) + t + " GMT"
+                match['match']['stop'] = ''.join(g['startDate'].split('-')) + t_end + " GMT"
+        except:
+            pass
+        if match['match']['name'] == '':
+            match['match']['name'] = f"{match['away_team']['name']} vs {match['home_team']['name']}"
+        match['match']['img_location'] = game_info.generate_img(match, lg)
+        p(f"Found - {match['match']['name']}", colours.OKGREEN, otype.REGULAR)
+        pind2(f"URL - {match['match']['url']}", colours.OKCYAN, otype.DEBUG)
+        pind2(f"ICON - {match['match']['img_location']}", colours.OKCYAN, otype.DEBUG)
+        games.append(match)
+    return games
 
 def find_streams(lg: str) -> list:
     """
@@ -233,26 +308,21 @@ def find_streams(lg: str) -> list:
     res = []
     games = []
     date = datetime.datetime.today().strftime('%Y-%m-%d')
-    hosts = [f"{STREAM_LINK}/streams-table/"]
+    hosts = [f"{STREAM_LINK}"]
     path = None
     if lg == NHL:
         path = "nhl-tournaments"
-        hosts.append("/ice-hockey?new-ui=1&origin=live.redditnhlstreams.com")
+        hosts.append("/live/hockey-stream")
     elif lg == NFL:
         path = "nfl-tournaments-week"
-        hosts.append("/american-football?new-ui=1&origin=official.nflstreams.to")
+        hosts.append("/live/football-stream")
     elif lg == NBA:
         path = "nba-tournaments"
-        hosts.append("/basketball?new-ui=1&origin=reddit.rnbastreams.com")
-    elif lg == EF:
-        hosts.append("/soccer?new-ui=1&origin=redi1.soccerstreams.net")
-        api_res = json.loads(r.get(f"{STREAM_LINK}/new-api/matches?timeZone=300&date={date}").content)
-        for i in api_res:
-            games.extend(make_match(i['events'], hosts, lg))
+        hosts.append("/live/basketball-stream")
 
     if path:
         main_link = f"{STREAM_LINK}/api/{path}?date={date}"
-        api_res = json.loads(r.request("GET", main_link).content)[0]['events']
+        api_res = json.loads(reqs.request("GET", main_link).content)[0]['events']
         games = make_match(api_res, hosts, lg)
 
     for match in games:
@@ -263,6 +333,44 @@ def find_streams(lg: str) -> list:
         p(f"COULD NOT FIND {lg.upper()} GAMES", colours.FAIL, otype.ERROR)
     return res
 
+def find_streams(lg: str) -> list:
+    """
+    Finds current games that are active for a given league.
+    """
+    STREAM_LINK = os.environ.get('stream_link')
+    scraping_url = STREAM_LINK
+    p(f"COLLECTING {lg.upper()} STREAMING LINKS", colours.HEADER, otype.REGULAR)
+    res = []
+    games = []
+    hosts = [f"{STREAM_LINK}"]
+    path = None
+    if lg == NHL:
+         scraping_url += "/live/basketball-stream"
+    elif lg == NFL:
+         scraping_url += "/live/football-stream"
+    elif lg == NBA:
+        scraping_url += "/live/basketball-stream"
+    
+    # Fetch page content
+    response = reqs.get(scraping_url)
+    soup = BeautifulSoup(response.text, "html.parser")
+
+    # Extract all links
+    extracted_links = [a['href'] for a in soup.find_all('a', href=True)]
+
+    # Filter links containing any NBA team name
+    if lg == NHL:
+        sports_links = [link for link in extracted_links if any(team in link for team in nhl_teams)]
+    elif lg == NFL:
+        sports_links = [link for link in extracted_links if any(team in link for team in nfl_teams)]
+    elif lg == NBA:
+        sports_links = [link for link in extracted_links if any(team in link for team in nba_teams)]
+
+    # Print the filtered links
+    for link in sports_links:
+        link = STREAM_LINK + link
+    
+    return sports_links
 
 def get_streams(s: list) -> list:
     return find_urls(bypass_bitly(s))

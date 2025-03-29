@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "name": "Jellyfin Sports",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "jellyfin_sports",
+            "args": ["-v", "-nba"] 
+        }
+    ]
+}

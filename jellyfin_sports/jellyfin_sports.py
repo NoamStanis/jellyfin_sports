@@ -20,14 +20,7 @@ os.environ['output'] = OUTPUT
 def header():
     print()
     print()
-    print(f"{colours.OKCYAN + colours.BOLD} ________  ________  ________  ________  _________    ___    ___ ________ ___  ________    ")
-    print(f"{colours.OKCYAN + colours.BOLD}|\   ____\|\   __  \|\   __  \|\   __  \|\___   ___\ |\  \  /  /|\  _____\\  \|\   ___  \    ")
-    print(f"{colours.OKCYAN + colours.BOLD}\ \  \___|\ \  \|\  \ \  \|\  \ \  \|\  \|___ \  \_| \ \  \/  / | \  \__/\ \  \ \  \\ \  \   ")
-    print(f"{colours.OKCYAN + colours.BOLD} \ \_____  \ \   ____\ \  \\\  \ \   _  _\   \ \  \   \ \    / / \ \   __\\ \  \ \  \\ \  \  ")
-    print(f"{colours.OKCYAN + colours.BOLD}  \|____|\  \ \  \___|\ \  \\\  \ \  \\  \|   \ \  \   \/  /  /   \ \  \_| \ \  \ \  \\ \  \ ")
-    print(f"{colours.OKCYAN + colours.BOLD}    ____\_\  \ \__\    \ \_______\ \__\\ _\    \ \__\__/  / /      \ \__\   \ \__\ \__\\ \__\ ")
-    print(f"{colours.OKCYAN + colours.BOLD}   |\_________\|__|     \|_______|\|__|\|__|    \|__|\___/ /        \|__|    \|__|\|__| \|__|")
-    print(f"{colours.OKCYAN + colours.BOLD}   \|_________|                                     \|___|/                                  ")
+    print("Welcome to Jellyfin Sports")
     print()
     print(f"{colours.OKGREEN}    Summary: Stream sports events straight from your Jellyfin server. jellyfin_sports allows users to scrape for ")
     print(f"{colours.OKGREEN}             live streamed events and watch straight from Jellyfin. jellyfin_sports also generates meta-data that ")
@@ -77,7 +70,7 @@ class StreamCollector:
                 ET.SubElement(audio, "stereo").text = "stereo"
                 ET.SubElement(doc_p, "icon", src=f"{OUTPUT}/{lg}/{match['match']['img_location'].split('/')[-1]}")
         tree = ET.ElementTree(root)
-        outp = os.path.join(OUTPUT, f"docs")
+        outp = os.path.join(OUTPUT, "docs")
         if not os.path.isdir(f"{OUTPUT}"):
             os.makedirs(f"{OUTPUT}")
             os.makedirs(f"{outp}")
@@ -106,7 +99,7 @@ def run(argv: list):
     global OUTPUT
     minutes = 30
     try:
-        os.environ['stream_link'] = "https://olympicstreams.co/"
+        os.environ['stream_link'] = "https://olympicstreams.co"
         if "-v" in argv:
             os.environ["verbosity"] = "0"
         else:
